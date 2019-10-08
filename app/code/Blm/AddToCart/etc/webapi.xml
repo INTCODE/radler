@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/blmCart/get/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="get"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route url="/V1/blmCart/add/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="add"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+       <route url="/V1/blmCart/addCrossSell/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="addCrossSell"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+        <route url="/V1/blmCart/getCartByAddress/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="getCartByAddress"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+            <route url="/V1/blmCart/getCart/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="getCart"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+            <route url="/V1/blmCart/getCartQty/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="getCartQty"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+                <route url="/V1/blmCart/editCart/" method="POST">
+        <service class="Blm\AddToCart\Api\HelloInterface" method="editCart"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+
+</routes>

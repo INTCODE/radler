@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-right" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+
+        <referenceBlock name="sidebar.main" remove = "true" />
+        <container name="sidebar" label="sidebar" htmlTag="div" htmlId="sidebar-product-list" htmlClass="sidebar"/>
+        <move element="sidebar" destination="columns" before="-"/>
+        <move element="page.main.title" destination="sidebar" before="-"/>
+        <move element="catalog.leftnav" destination="sidebar" after="page.main.title"/>
+    </body>
+</page>

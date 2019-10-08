@@ -1,0 +1,64 @@
+
+<?php
+
+$GLOBALS['is_active'] = false;
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$customerSession = $objectManager->create("Magento\Customer\Model\Session");
+if(!$customerSession->isLoggedIn())
+    return;
+
+$customerSession = $objectManager->create("Magento\Customer\Model\Session");
+$id= $customerSession->getCustomerId();
+$customerObj = $objectManager->create('Magento\Customer\Model\Customer')->load($id);
+if($customerObj->getApproveAccount() == 2){
+    $GLOBALS['is_active'] = true;
+}
+
+if(!$customerSession->getData('session_address')) {
+    $customerSession->getData('session_address', $customerObj->getDefaultShipping());
+}
+
+$currentAddress = $customerSession->getData('session_address');
+$options = '';
+foreach ($customerObj->getAddresses() as $address)
+{
+    $customerAddress = $address->toArray();
+    $data=$customerAddress['postcode'].' | '.$customerAddress['firstname'].' '.$customerAddress['lastname'].' - '.$customerAddress['company'].' ('.$customerAddress['city'].')';
+    $isSelected = ($currentAddress == $customerAddress['entity_id']) ? ' selected="selected"' : '';
+    $options.="<option value='".$customerAddress['entity_id']."' {$isSelected}>$data</option>";
+}
+
+?>
+
+
+
+
+
+<?php if ($id && $options && ($customerObj->getData('approve_account') == 2)): ?>
+    <div class="addressSelect">
+        <select id='addresses'>
+            <?php echo $options; ?>
+        </select>
+    </div>
+
+<script>
+    require(["jquery"], function($) {
+        $('select#addresses').on('change', function () {
+
+            
+            jQuery.ajax({
+                url: '<?= $block->getUrl('perla/customer/switchaddress') ?>id/' + $(this).find('option:selected').val(),
+                type: "POST",
+                showLoader: true,
+                cache: false,
+                success: function(response){
+                    console.log(response);
+                }
+            });
+        });
+
+    });
+</script>
+
+<?php endif; ?>

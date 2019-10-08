@@ -1,0 +1,43 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Magento\Customer\Block\Account\Customer $block */
+?>
+<?php if($block->customerLoggedIn()): ?>
+    <li class="customer-welcome">
+<?php
+$objectManagerlogin = \Magento\Framework\App\ObjectManager::getInstance();
+$customerSession = $objectManagerlogin->get('Magento\Customer\Model\Session');
+$baseurl = $objectManagerlogin->get('Magento\Store\Model\StoreManagerInterface')->getStore(0)->getBaseUrl();
+?>
+    <a class="myAccountBtnHeader" href="<?php echo $baseurl .'customer/account/'; ?>">
+        <span>My Account</span>
+    </a>
+    <a class="logoutBtnHeader" href="<?php echo $baseurl .'customer/account/logout'; ?>">
+        <span>Logout</span>
+    </a>
+        <script type="text/x-magento-init">
+        {
+            "*": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "customer": {
+                            "component": "Magento_Customer/js/view/customer"
+                        }
+                    }
+                }
+            }
+        }
+        </script>
+        <?php if($block->getChildHtml() && 1 == 2): // disabled 1==2 
+            ?>
+        <div class="customer-menu" data-target="dropdown">
+            <?= $block->getChildHtml() ?>
+        </div>
+        <?php endif; ?>
+    </li>
+<?php endif; ?>

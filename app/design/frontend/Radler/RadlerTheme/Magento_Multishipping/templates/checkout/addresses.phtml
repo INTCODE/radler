@@ -1,0 +1,225 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$imageHelperFactory = $objectManager->create("\Magento\Catalog\Helper\ImageFactory");
+$priceCurrencyInterface = $objectManager->create("\Magento\Framework\Pricing\PriceCurrencyInterface");
+$quote = $block->getCheckout()->getQuote();
+?>
+<div class="wrapper wrapper_addresses">
+
+<form id="checkout_multishipping_form"
+      data-mage-init='{
+          "multiShipping":{},
+          "cartUpdate": {
+               "validationURL": "/multishipping/checkout/checkItems",
+               "eventName": "updateMulticartItemQty"
+          }}'
+      action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
+      method="post"
+      class="multicheckout address form">
+    <div class="title">
+        <strong><?= $block->escapeHtml(__('Please select a shipping address for applicable items.')) ?></strong>
+    </div>
+    <input type="hidden" name="continue" value="0" id="can_continue_flag"/>
+    <input type="hidden" name="new_address" value="0" id="add_new_address_flag"/>
+
+      <div>
+          <div class="basket-list">
+              <div class="head">
+                  <span>Item</span>
+                  <span>Price</span>
+                  <span>Quantity</span>
+                  <span>Address</span>
+                  <span>Subtotal</span>
+              </div>
+
+              <div id="container-items">
+
+                  <?php foreach ($block->getItems() as $_index => $_item):
+                  $product = $objectManager->create('Magento\Catalog\Model\Product')->load($_item->getProduct()->getId());
+                  ?>
+
+                      <?php if ($_item->getQuoteItem()) : ?>
+                      <div class="basket-item">
+
+                          <div class="img">
+                              <img src="<?= $imageHelperFactory->create()
+                                  ->init($product, 'product_thumbnail_image')->resize(50)->getUrl(); ?>" />
+
+                          </div>
+                          <div class="text"><?= $block->getItemHtml($_item->getQuoteItem()) ?></div>
+                          <div class="price">
+
+                              <?= $priceCurrencyInterface->convertAndFormat($_item->getPrice()) ?>
+                          </div>
+                          <div class="quantity">
+                              <div class="custom-input-number control">
+                                  <button type="button" class="decrement decreaseQty">-</button>
+                                  <input type="number"
+                                         data-multiship-item-id="<?= $block->escapeHtml($_item->getSku()) ?>"
+                                         id="ship-<?= $block->escapeHtml($_index) ?>-<?= $block->escapeHtml($_item->getQuoteItemId()) ?>-qty"
+                                         name="ship[<?= $block->escapeHtml($_index) ?>][<?= $block->escapeHtml($_item->getQuoteItemId()) ?>][qty]"
+                                         value="<?= $block->escapeHtml($_item->getQty()) ?>"
+                                         size="2"
+                                         class="inputProductQty input-text qty"
+                                         data-validate="{number: true}"/>
+                                  <button type="button" class="increment increaseQty">+</button>
+                              </div>
+                          </div>
+                          <div>
+                              <?php if ($_item->getProduct()->getIsVirtual()): ?>
+                                  <div class="applicable">
+                                      <?= $block->escapeHtml(__('A shipping selection is not applicable.')) ?>
+                                  </div>
+                              <?php else: ?>
+                                  <div class="field address">
+                                      <div class="control">
+                                          <?= $block->getAddressesHtmlSelect($_item, $_index) ?>
+                                      </div>
+                                  </div>
+                              <?php endif; ?>
+                          </div>
+                          <div class="subtotal">
+                              <?= $priceCurrencyInterface->convertAndFormat($_item->getRowTotal()) ?>
+                          </div>
+
+
+                      </div>
+                  <?php endif; ?>
+                  <?php endforeach; ?>
+              </div>
+
+              <?php /*
+              <div class="table-wrapper">
+                  <table class="items data table" id="multiship-addresses-table">
+                      <caption class="table-caption">
+                          <?= $block->escapeHtml(__('Please select a shipping address for applicable items.')) ?>
+                      </caption>
+                      <thead>
+                      <tr>
+                          <th class="col product" scope="col"><?= $block->escapeHtml(__('Product')) ?></th>
+                          <th class="col qty" scope="col"><?= $block->escapeHtml(__('Qty')) ?></th>
+                          <th class="col address" scope="col"><?= $block->escapeHtml(__('Send To')) ?></th>
+                          <th class="col actions" scope="col">&nbsp;</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <?php foreach ($block->getItems() as $_index => $_item):
+                          $product = $objectManager->create('Magento\Catalog\Model\Product')->load($_item->getProduct()->getId());
+                          ?>
+                          <?php if ($_item->getQuoteItem()) : ?>
+                              <tr>
+
+                                  <td class="col product" data-th="<?= $block->escapeHtml(__('Product')) ?>">
+                                      <img src="<?= $imageHelperFactory->create()
+                                          ->init($product, 'product_thumbnail_image')->resize(50)->getUrl(); ?>" />
+                                      <?= $block->getItemHtml($_item->getQuoteItem()) ?>
+                                  </td>
+                                  <td class="col qty" data-th="<?= $block->escapeHtml(__('Qty')) ?>">
+                                      <div class="field qty">
+                                          <label for="ship-<?= $block->escapeHtml($_index) ?>-<?= $block->escapeHtml($_item->getQuoteItemId()) ?>-qty"
+                                                 class="label">
+                                              <span><?= $block->escapeHtml(__('Qty')) ?></span>
+                                          </label>
+                                          <div class="control">
+                                              <input type="number"
+                                                     data-multiship-item-id="<?= $block->escapeHtml($_item->getSku()) ?>"
+                                                     id="ship-<?= $block->escapeHtml($_index) ?>-<?= $block->escapeHtml($_item->getQuoteItemId()) ?>-qty"
+                                                     name="ship[<?= $block->escapeHtml($_index) ?>][<?= $block->escapeHtml($_item->getQuoteItemId()) ?>][qty]"
+                                                     value="<?= $block->escapeHtml($_item->getQty()) ?>"
+                                                     size="2"
+                                                     class="input-text qty"
+                                                     data-validate="{number: true}"/>
+                                          </div>
+                                      </div>
+                                  </td>
+                                  <td class="col address" data-th="<?= $block->escapeHtml(__('Send To')) ?>">
+                                      <?php if ($_item->getProduct()->getIsVirtual()): ?>
+                                          <div class="applicable">
+                                              <?= $block->escapeHtml(__('A shipping selection is not applicable.')) ?>
+                                          </div>
+                                      <?php else: ?>
+                                          <div class="field address">
+                                              <label for="ship_<?= $block->escapeHtml($_index) ?>_<?= $block->escapeHtml($_item->getQuoteItemId()) ?>_address"
+                                                     class="label">
+                                                  <span><?= $block->escapeHtml(__('Send To')) ?></span>
+                                              </label>
+                                              <div class="control">
+                                                  <?= $block->getAddressesHtmlSelect($_item, $_index) ?>
+                                              </div>
+                                          </div>
+                                      <?php endif; ?>
+                                  </td>
+                                  <td class="col actions" data-th="<?= $block->escapeHtml(__('Actions')) ?>">
+                                      <a href="<?= $block->escapeUrl($block->getItemDeleteUrl($_item)) ?>"
+                                         title="<?= $block->escapeHtml(__('Remove')) ?>"
+                                         class="action delete"
+                                         data-multiship-item-remove="">
+                                          <span><?= $block->escapeHtml(__('Remove')) ?></span>
+                                      </a>
+                                  </td>
+                              </tr>
+                          <?php endif; ?>
+                      <?php endforeach; ?>
+                      </tbody>
+                  </table>
+              </div>
+              */ ?>
+
+              <div class="actions-toolbar">
+
+                  <div class="secondary">
+                      <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>"
+                         class="action back">
+                          <span><?= $block->escapeHtml(__('Back to Shopping Cart')) ?></span>
+                      </a>
+
+                      <button type="submit"
+                              data-multiship-item-update=""
+                              class="action update"
+                              data-role="can-continue"
+                              data-flag="0">
+                          <span><?= $block->escapeHtml(__('Update Qty &amp; Addresses')) ?></span>
+                      </button>
+
+                  </div>
+              </div>
+          </div>
+          <div class="panel">
+              <div class="summary">
+                  <p class="heading">Summary</p>
+                  <div class="borders">
+                      <p>
+                          <span>Subtotal</span>
+                          <span><?= $priceCurrencyInterface->convertAndFormat($quote->getSubtotal()) ?></span>
+                      </p>
+                  </div>
+                  <p class="total">
+                      <span>Order Total</span>
+                      <span><?= $priceCurrencyInterface->convertAndFormat($quote->getGrandTotal()) ?></span>
+                  </p>
+                  <div class="actions-toolbar">
+                      <button type="submit"
+                              title="<?= $block->escapeHtml(__('Go to Shipping Information')) ?>"
+                              class="btn btn-green continue<?php if ($block->isContinueDisabled()):?> disabled<?php endif; ?>"
+                              data-role="can-continue"
+                              data-flag="1"
+                          <?php if ($block->isContinueDisabled()):?>
+                              disabled="disabled"
+                          <?php endif; ?>>
+                          <span><?= $block->escapeHtml(__('Proceed to checkout')) ?></span>
+                      </button>
+
+                  </div>
+              </div>
+          </div>
+      </div>
+
+
+</form>
+</div>
+
+<script>
+    require(["jquery"], function($) {
+        
+    });
+</script>

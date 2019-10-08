@@ -1,0 +1,20 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$imageHelperFactory = $objectManager->create("\Magento\Catalog\Helper\ImageFactory");
+//$_product = $block->getProduct();
+$_product = $objectManager->create('Magento\Catalog\Model\Product')->load($block->getProduct()->getId());
+
+$swatchData = $block->getSwatchData();
+$swatchData['palette_image'] = $imageHelperFactory->create()
+    ->init($_product, 'palette_image')->getUrl();
+//if(!file_exists($swatchData['palette_image']))
+//    $swatchData['palette_image'] = null;
+?>
+<script>
+    var $jsonSwatch_<?= $_product->getId() ?> = <?= json_encode($swatchData) ?>;
+</script>
+
+<div class="boxSwitch clearfix" data-productid="<?= $_product->getId() ?>">
+    <div class="item current" id="box">&nbsp;</div>
+    <div class="item" id="palette">&nbsp;</div>
+</div>

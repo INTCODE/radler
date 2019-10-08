@@ -1,0 +1,117 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var $block \Magento\Catalog\Block\Product\View */
+?>
+<?php $_product = $block->getProduct(); ?>
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php if ($_product->isSaleable()): ?>
+
+    <?php
+    $showSwitch = false;
+    $dataToCustomOptionSwatch = [];
+
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $customOptions = $objectManager->get('Magento\Catalog\Model\Product\Option')->getProductOptionCollection($_product);
+    $priceCurrencyInterface = $objectManager->create("\Magento\Framework\Pricing\PriceCurrencyInterface");
+
+    if($customOptions) {
+        foreach ($customOptions as $customOption) {
+            $optionId = $customOption->getId();
+            if($customOption->getTitle() == 'package'){
+                echo '<input type="hidden" name="package_type" value="box" id="package_name_for_product'.$_product->getId().'"/>';
+                foreach ($customOption->getValues() as $value) {
+                    if($value->getTitle() == 'box') {
+                        $dataToCustomOptionSwatch['box'] = $priceCurrencyInterface->convertAndFormat($_product->getPrice());
+                    }
+                    if($value->getTitle() == 'palette') {
+                        $dataToCustomOptionSwatch['palette'] = $priceCurrencyInterface->convertAndFormat($_product->getPrice() + $value->getPrice());
+                    }
+
+                }
+                $showSwitch = true;
+            }
+        }
+    }
+
+    if($showSwitch) {
+        echo $block->getLayout()->createBlock('Magento\Framework\View\Element\Template')
+            ->setProduct($_product)
+            ->setSwatchData($dataToCustomOptionSwatch)
+            ->setTemplate('Magento_Catalog::product/box_switch.phtml')
+            ->toHtml();
+    }
+    ?>
+
+
+<div class="box-tocart">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()): ?>
+        <div class="field qty">
+            <label class="label" for="qty"><span><?= /* @escapeNotVerified */ __('Qty') ?></span></label>
+            <div class="control">
+            <input type="hidden" name="addressId" value="1">
+            <input type="number" 
+                name="qty" 
+                min="0"
+                data-changed="false" 
+                data-id="product-qty-<?= $_product->getId() ?>" 
+                maxlength="12" 
+                data-target="product-qty-<?= $_product->getId() ?>" 
+                value="0<?php
+                // GET COUNT IN CART
+                /*$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $cart = $objectManager->get('\Magento\Checkout\Model\Cart'); 
+                $items = $cart->getQuote()->getAllItems();
+                $count = 0;
+                foreach($items as $item) {
+                    if($_product->getId() == $item->getProductId()) {
+                        $count = $item->getQty();
+                        break;
+                    }   
+                }
+                echo $count;*/
+                ?>" 
+                title="<?= /* @escapeNotVerified */ __('Qty') ?>" 
+                class="input-text qty inputProductQty"/>
+
+                <button type="button" 
+                data-target="product-qty-<?= $_product->getId() ?>" 
+                data-action="+" 
+                class="increaseQty">+</button>
+                <button type="button" 
+                data-target="product-qty-<?= $_product->getId() ?>" 
+                data-action="-" 
+                class="decreaseQty">-</button>
+            </div>
+        </div>
+        <?php endif; ?>
+        <div class="actions">
+            <button data-id="addToCart_product-qty-<?= $_product->getId() ?>" type="submit"
+                    title="<?= /* @escapeNotVerified */ $buttonTitle ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button"
+                    style="display: none"
+            >
+                <span><?= /* @escapeNotVerified */ $buttonTitle ?></span>
+            </button>
+            <?= $block->getChildHtml('', true) ?>
+        </div>
+    </div>
+</div>
+
+
+
+<?php endif; ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/js/validate-product": {}
+        }
+    }
+</script>

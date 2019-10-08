@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body> 
+    <referenceBlock name="logo">
+        <arguments>
+        <argument name="logo_file" xsi:type="string">images/logo.png</argument>
+        </arguments>
+    </referenceBlock>
+
+    <!--MOVED BLOCKS -->
+    <move element="header.links" destination="header-wrapper" after="minicart"/>
+ 
+   <referenceBlock name="register-link">
+        <arguments>
+            <argument name="label" xsi:type="string" translate="true"> Login</argument>
+        </arguments>
+    </referenceBlock>
+
+    <!--REMOVED BLOCKS -->
+    <referenceBlock name="sale.reorder.sidebar" remove="true"/>
+    <referenceBlock name="catalog.compare.link" remove="true"/>
+    <referenceBlock name="catalog.compare.sidebar" remove="true"/> 
+    <referenceBlock name="wishlist_sidebar" remove="true" />
+    <referenceBlock name="top.search" remove="true"/>
+    <referenceBlock name="greet_welcome" remove="true"/>
+    <referenceBlock name="authorization-link-login" remove="true"/>
+    <referenceBlock name="header.panel.wrapper" remove="true" />
+    <referenceBlock name="form.subscribe" remove="true" />
+    <referenceBlock name="copyright" remove="true" />
+    <referenceBlock name="footer_links" remove="true" />
+    <referenceBlock name="breadcrumbs" remove="true" />
+
+        <referenceBlock name="header-wrapper">
+            <block class="Magento\Framework\View\Element\Template"  after="logo" name="addresses" template="Magento_Theme::html/address-select.phtml" cacheable="false"/>
+        </referenceBlock>
+    
+    </body>
+</page>

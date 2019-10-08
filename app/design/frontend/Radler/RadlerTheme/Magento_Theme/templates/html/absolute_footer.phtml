@@ -1,0 +1,168 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<!-- <?= /* @escapeNotVerified */ $block->getMiscellaneousHtml();?> -->
+ 
+    <footer class="footer">
+        <div class="wrapper">
+            <div class="column">
+                <p class="column-title">CUSTOMER SERVICE</p>
+                <ul>
+                    <!-- <li><a href="<?php echo $this->getUrl('about-us') ?>">About Us</a></li> -->
+                    <li><a href="<?php echo $this->getUrl('faq') ?>">FAQs</a></li>
+                    <li><a href="<?php echo $this->getUrl('contact') ?>">Contact Us</a></li> 
+                </ul>
+            </div>
+            <div class="column">
+                <p class="column-title">THE SMALL PRINT</p>
+                <ul>
+                    <!-- <li><a href="<?php echo $this->getUrl('deliveries') ?>">Deliveries</a></li> -->
+                    <li><a href="<?php echo $this->getUrl('terms-conditions') ?>">Terms & Conditions</a></li>
+                    <li><a href="<?php echo $this->getUrl('privacy-policy-cookie-restriction-mode') ?>">Privacy</a></li> 
+                </ul>
+            </div>
+            <div class="about">
+                <div class="img">
+                    <img src="<?php echo $this->getViewFileUrl('images/logo_2.png'); ?>" alt=""> 
+                </div>
+                <p>Diamonds & Pearl Trading Ltd. Cromwell Industrial Estate, Unit 43, Staffa Rd, Leyton E10 7QZ | Copyright© 2019</p>
+            </div>
+            <div class="contact">
+                <p>Have any questions? Contact us</p>
+                <p class="number">(+44) 01277 219818</p>
+                <p class="number">(+44) 07886 076847</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <div id="modal-changes" class="modal-info-change-address disabled">
+        <div class="modal-info">
+            <h3>Please wait...</h3>
+        </div>
+    </div>
+
+
+<style>
+
+    /*/radlerFront/assets/img/icons/view_2.png*/
+
+    .product-item .boxSwitch{
+        position: absolute;
+        right: 5px;
+        top: 5px;
+    }
+
+    .product-options-wrapper {
+        display: none;
+    }
+
+    .boxSwitch {
+        border-radius: 50px;
+        background: #e1dfdc;
+        display: inline-block;
+    }
+    .boxSwitch .item {
+        display: inline-block;
+        color: #fff;
+        padding: 0 11px;
+        opacity: .5;
+        text-indent: -10000px;
+        float: left;
+        margin: 3px 3px;
+        transition: .3s;
+        cursor: pointer;
+        border-radius: 13px;
+        position: relative;
+    }
+
+    .boxSwitch .item#box {
+        background: url(/radlerFront/assets/img/icons/view_1.png) no-repeat center center;
+    }
+    .boxSwitch .item#palette {
+        background: url(/radlerFront/assets/img/icons/view_2.png) no-repeat center center;
+    }
+
+    .boxSwitch .item.current#box {
+        background: url(/radlerFront/assets/img/icons/view_1.png) #fff no-repeat center center;
+        opacity: .8;
+    }
+    .boxSwitch .item.current#palette {
+        background: url(/radlerFront/assets/img/icons/view_2.png) #fff no-repeat center center;
+        opacity: .8;
+    }
+
+
+    /* mini cart */
+    .page-header .minicart-wrapper .product-item img {
+        float: left;
+    }
+
+</style>
+<script>
+    require(["jquery"], function($) {
+
+        var $method, qtyInput;
+        $('.increaseQty').on('click', function () {
+           var qtyInput = $(this).parent('.control').find('input.inputProductQty');
+            modifyQtyInInput(qtyInput, 'up');
+        });
+        $('.decreaseQty').on('click', function () {
+           var qtyInput = $(this).parent('.control').find('input.inputProductQty');
+            modifyQtyInInput(qtyInput, 'down');
+        });
+        function modifyQtyInInput(qtyInput, $method) {
+            if($method == 'up') {
+                qtyInput.val(parseInt(qtyInput.val())+1);
+            }else{
+                qtyInput.val(parseInt(qtyInput.val())-1);
+            }
+            qtyInput.trigger('change');
+        }
+
+        $('input.inputProductQty').on('change', function () {
+            $(this).closest('form').find('button.tocart').trigger('click');
+        });
+
+
+
+        /* switch box */
+        $('.boxSwitch .item').on('click', function() {
+            var selectedOption = $(this).attr('id');
+            var productId = $(this).parent('.boxSwitch').attr('data-productid');
+            $('input#package_name_for_product'+productId).val(selectedOption);
+            $(this).parent('.boxSwitch').find('.item').removeClass('current');
+            $(this).addClass('current');
+            var swatchJson = eval('$jsonSwatch_'+productId);
+
+            replaceImageAndPrice(swatchJson, $(this), selectedOption);
+        });
+
+        function replaceImageAndPrice(swatchJson, switchElement, selectedOption) {
+            var newPriceHtml = eval('swatchJson.'+switchElement.attr('id'));
+
+            if($('body').hasClass('catalog-product-view')) {
+                var fotoramaImg = $('.fotorama__stage__frame .fotorama__img');
+                if(!fotoramaImg.attr('data-box-src')) {
+                    fotoramaImg.attr('data-box-src', fotoramaImg.attr('src'));
+                    fotoramaImg.attr('data-palette-src', swatchJson.palette_image);
+                }
+                fotoramaImg.attr('src', fotoramaImg.attr('data-'+switchElement.attr('id')+'-src'));
+                $('span#product-price-'+ switchElement.parent('.boxSwitch').attr('data-productid')).html(newPriceHtml);
+            }else{
+                var productBox = switchElement.closest('.product-item');
+                var image = productBox.find('img.product-image-photo');
+                if(!image.attr('data-box-src')) {
+                    image.attr('data-box-src', image.attr('src'));
+                    image.attr('data-palette-src', swatchJson.palette_image);
+                }
+                image.attr('src', image.attr('data-'+switchElement.attr('id')+'-src'));
+                productBox.find('span.price-wrapper').html(newPriceHtml);
+            }
+        }
+
+    });
+</script>
